@@ -1,0 +1,72 @@
+evolution:
+  enabled: true
+  version: "1.0.0"
+
+# Models - DeepSeek V4 via OpenRouter (cheapest, latest)
+models:
+  analysis:
+    provider: "openrouter"
+    model: "deepseek/deepseek-v4-flash"  # V4 Flash - $0.098/M input, $0.196/M output
+    base_url: "https://openrouter.ai/api/v1"
+    api_key_env: "ANTHROPIC_API_KEY"  # Reuses your existing OpenRouter key
+    max_tokens: 4000
+    temperature: 0.3
+
+  evolution:
+    provider: "openrouter"
+    model: "deepseek/deepseek-v4-flash"  # Same model, different temperature
+    base_url: "https://openrouter.ai/api/v1"
+    api_key_env: "ANTHROPIC_API_KEY"  # Reuses your existing OpenRouter key
+    max_tokens: 8000
+    temperature: 0.7  # Higher for creative mutations
+
+# Paths
+paths:
+  claude_md: "/home/reese/CLAUDE.md"
+  memory_dir: "/home/reese/.claude/projects/-home-reese/memory"
+  logs_dir: "/home/reese/claude-evolution/logs"
+  data_dir: "/home/reese/claude-evolution/data"
+  backup_dir: "/home/reese/claude-evolution/data/backups"
+
+# Thresholds
+thresholds:
+  min_sessions_for_analysis: 3
+  min_corrections_for_pattern: 2
+  max_memory_files: 15
+  max_memory_size_kb: 20
+  evolution_cooldown_hours: 24
+
+# Consolidation
+consolidation:
+  enabled: true
+  threshold_chars: 5000  # Trigger consolidation when CLAUDE.md exceeds this
+  target_chars: 3500     # Target size after consolidation
+  temperature: 0.3       # Lower temp for precise consolidation
+
+# Log rotation
+rotation:
+  enabled: true
+  max_log_age_days: 30   # Delete logs older than this
+  max_backups: 10        # Keep last N backups
+
+# Outcome measurement
+outcome:
+  enabled: true
+  degradation_threshold: 0.2  # 20% worse = rollback
+  metrics:
+    - corrections_per_session
+    - avg_turns_per_task
+    - repeated_tool_ratio
+
+# Budget
+budget:
+  max_daily_cost_usd: 2.0  # Stay well under 10% of $0.06/M baseline
+  max_monthly_cost_usd: 30.0
+  cost_per_1m_tokens: 0.06  # Your baseline
+
+# Log rotation
+rotation:
+  enabled: true
+  max_log_age_days: 30
+  max_log_size_mb: 10
+  max_backups: 20

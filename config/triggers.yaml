@@ -1,0 +1,65 @@
+# Advanced trigger configuration for Claude Evolution System
+# Evolution activates based on these criteria, not just a daily timer
+
+triggers:
+  # HIGH PRIORITY: User corrected Claude 3+ times in 24h
+  # Means CLAUDE.md instructions are producing bad behavior
+  - name: correction_burst
+    type: count
+    metric: corrections_per_session
+    threshold: 3
+    cooldown_hours: 6
+    priority: 1
+
+  # HIGH PRIORITY: >30% of tool calls are rapid-fire repeats
+  # Means Claude is looping or retrying excessively
+  - name: repeated_pattern
+    type: ratio
+    metric: repeated_tool_ratio
+    threshold: 0.3
+    cooldown_hours: 12
+    priority: 2
+
+  # MEDIUM: Average turns per task exceeds 15
+  # Means tasks are too complex or decomposition is poor
+  - name: session_complexity
+    type: threshold
+    metric: avg_turns_per_task
+    threshold: 15
+    cooldown_hours: 24
+    priority: 3
+
+  # HIGH PRIORITY: 5+ tool failures in a session
+  # Means something is broken or permissions are wrong
+  - name: error_spike
+    type: count
+    metric: errors_per_session
+    threshold: 5
+    cooldown_hours: 4
+    priority: 4
+
+  # LOW PRIORITY: Log files exceed 5MB
+  # Means analysis is getting slow
+  - name: data_accumulation
+    type: size
+    metric: log_size_mb
+    threshold: 5.0
+    cooldown_hours: 48
+    priority: 5
+
+  # MEDIUM: 2+ memory files changed in 24h
+  # Means significant context changes, worth re-evaluating
+  - name: new_memory_files
+    type: count
+    metric: memory_files_added
+    threshold: 2
+    cooldown_hours: 12
+    priority: 6
+
+  # LOW PRIORITY: Timer-based fallback (every 24h)
+  # Catches patterns that event triggers miss
+  - name: time_based
+    type: timer
+    interval_hours: 24
+    cooldown_hours: 20
+    priority: 7
